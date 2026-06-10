@@ -31,5 +31,22 @@ def toggle(tid):
             return jsonify(t)
     abort(404)
  
+@app.delete("/todos/<int:tid>")
+def delete(tid):
+    global _todos
+    before = len(_todos)
+    _todos = [t for t in _todos if t["id"] != tid]
+    return ("", 204) if len(_todos) < before else ("", 404)
+ 
+# test_app.py 에 테스트 추가
+def test_delete():
+    c = client()
+    r = c.post("/todos", json={"title":"임시"})
+    tid = r.get_json()["id"]
+    assert c.delete(f"/todos/{tid}").status_code == 204
+    assert c.delete(f"/todos/{tid}").status_code == 404
+ 
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
